@@ -15,6 +15,7 @@ class Dat_GeoTargeting_Helper_Data extends Mage_Core_Helper_Abstract {
         $expectedMiles = $this->getExpectedMiles();
         $productCollection = Mage::getModel('catalog/product')->getCollection()
                 ->addAttributeToSelect(array('lat', 'long'));
+		Mage::log($productCollection->getSelectSql(true), null, 'mandira.log', true);
         $prodIds = array();
         if ($expectedMiles) {
             foreach ($productCollection as $eachProdCollection) {
@@ -32,13 +33,20 @@ class Dat_GeoTargeting_Helper_Data extends Mage_Core_Helper_Abstract {
 
     public function getDistance($prodLat, $prodLong, $userLat, $userLong) {
         // usage : Mage::helper('geotargeting')->getDistance($prodLat, $prodLong, $userLat, $userLong);
-        $theta = $prodLong - $userLong;
-        $miles = (sin(deg2rad($prodLat)) * sin(deg2rad($userLat))) + (cos(deg2rad($prodLat)) * cos(deg2rad($userLat)) * cos(deg2rad($theta)));
-        $miles = acos($miles);
-        $miles = rad2deg($miles);
-        $miles = $miles * 60 * 1.1515;
+        // $theta = $prodLong - $userLong;
+        // $miles = (sin(deg2rad($prodLat)) * sin(deg2rad($userLat))) + (cos(deg2rad($prodLat)) * cos(deg2rad($userLat)) * cos(deg2rad($theta)));
+        // $miles = acos($miles);
+        // $miles = rad2deg($miles);
+        // $miles = $miles * 60 * 1.1515;
         //$kilometers = $miles * 1.609344;
-        return round($miles, 2);
+		
+		
+		 $miles = (((acos(sin(( $userLat *pi()/180)) * 
+            sin(($prodLat*pi()/180))+cos(($userLat *pi()/180)) * 
+            cos(($prodLat*pi()/180)) * cos((($userLong - $prodLong)* 
+            pi()/180))))*180/pi())*60*1.1515
+        ) * 1.609344;
+        return $miles;
     }
 
     public function getUserLatLong() {
@@ -50,7 +58,7 @@ class Dat_GeoTargeting_Helper_Data extends Mage_Core_Helper_Abstract {
 
     public function getExpectedMiles() {
         // usage : Mage::helper('geotargeting')->getExpectedMiles();
-        return $expectedMiles = 10;
+        return $expectedMiles = 1000;
     }
 
     public function getDiscountDateDifference($product_id) {
@@ -103,7 +111,7 @@ class Dat_GeoTargeting_Helper_Data extends Mage_Core_Helper_Abstract {
         }
     }
 
-    public function getNext7Days($product, $days = 7) {
+    public function getNext7Days($product, $days = 7, $dateFormat = "D m/d") {
         // usage : Mage::helper('geotargeting')->getNext7Days($product, $days);
         $start = new DateTime();
         $end = new DateTime();
@@ -112,7 +120,7 @@ class Dat_GeoTargeting_Helper_Data extends Mage_Core_Helper_Abstract {
         $daterange = new DatePeriod($start, $interval, $end);
         $next7Days;
         foreach ($daterange as $date) {
-            $next7Days[] = date_format($date, "D m/d");
+            $next7Days[] = date_format($date, $dateFormat);
         }
 
         $diff = round(floor(abs(time() - strtotime($product->getDiscStartDate())) / 86400));
