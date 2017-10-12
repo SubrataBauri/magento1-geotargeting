@@ -1,0 +1,32 @@
+<config>
+    <modules>
+        <Dat_GeoTargeting>
+            <version>0.0.1</version>
+        </Dat_GeoTargeting>
+    </modules>
+    <global>
+        <blocks>
+            <catalog>
+                <rewrite>
+                    <product_list>Dat_GeoTargeting_Block_Product_List</product_list>
+                </rewrite>
+            </catalog>
+        </blocks>
+        <helpers>
+            <geotargeting>
+                <class>Dat_GeoTargeting_Helper</class>
+            </geotargeting>
+        </helpers>
+    </global>
+    <frontend>
+        <routers>
+            <geotargeting>
+                <use>standard</use>
+                <args>
+                    <module>Dat_GeoTargeting</module>
+                    <frontName>geotargeting</frontName>
+                </args>
+            </geotargeting>
+        </routers>
+    </frontend>
+</config>
